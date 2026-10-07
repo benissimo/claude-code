@@ -36,3 +36,6 @@ export const lifecycle = [
 export type LifecycleLabel = (typeof lifecycle)[number]["label"];
 
 export const STALE_UPVOTE_THRESHOLD = 10;
+
+// Issues carrying any of these labels are never marked stale or auto-closed.
+export const EXEMPT_LABELS = ["has repro", "reproduced"] as const;

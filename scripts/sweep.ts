@@ -1,6 +1,9 @@
 #!/usr/bin/env bun
 
-import { lifecycle, STALE_UPVOTE_THRESHOLD } from "./issue-lifecycle.ts";
+import { EXEMPT_LABELS, lifecycle, STALE_UPVOTE_THRESHOLD } from "./issue-lifecycle.ts";
+
+const isExempt = (issue: any) =>
+  issue.labels?.some((l: any) => (EXEMPT_LABELS as readonly string[]).includes(l.name));
 
 // --
 
@@ -61,6 +64,7 @@ async function markStale(owner: string, repo: string) {
       if (issue.pull_request) continue;
       if (issue.locked) continue;
       if (issue.assignees?.length > 0) continue;
+      if (isExempt(issue)) continue;
 
       const updatedAt = new Date(issue.updated_at);
       if (updatedAt > cutoff) return labeled;
@@ -106,6 +110,7 @@ async function closeExpired(owner: string, repo: string) {
       for (const issue of issues) {
         if (issue.pull_request) continue;
         if (issue.locked) continue;
+        if (isExempt(issue)) continue;
 
         const thumbsUp = issue.reactions?.["+1"] ?? 0;
         if (thumbsUp >= STALE_UPVOTE_THRESHOLD) continue;
